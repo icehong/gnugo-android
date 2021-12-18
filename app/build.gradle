@@ -16,7 +16,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags ''
+                cFlags '-Wno-format-security', '-Wno-constant-conversion'
             }
         }
     }
@@ -36,7 +36,7 @@ android {
     }
     externalNativeBuild {
         cmake {
-            path file('src/main/cpp/CMakeLists.txt')
+            path file('src/main/gnugo/CMakeLists.txt')
             version '3.10.2'
         }
     }
@@ -51,7 +51,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

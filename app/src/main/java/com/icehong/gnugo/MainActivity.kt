@@ -16,14 +16,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Example of a call to a native method
-        binding.sampleText.text = stringFromJNI()
+        var s = ""
+        javaIntArray(10)?.forEach{
+            s += it.toString()
+        }
+        binding.sampleText.text = s
     }
 
     /**
-     * A native method that is implemented by the 'gnugo' native library,
+     * A native method that is implemented by the 'stub' native library,
      * which is packaged with this application.
      */
     external fun stringFromJNI(): String
+    external fun javaIntArray(len: Int): IntArray?
 
     companion object {
         // Used to load the 'gnugo' library on application startup.
