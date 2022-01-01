@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Gnugoandroid">
         <service
-            android:name=".IntentGoService"
+            android:name=".GnugoService"
             android:exported="false"
             android:process=":RemoteProcess"
             android:permission="android.permission.BIND_JOB_SERVICE"/>

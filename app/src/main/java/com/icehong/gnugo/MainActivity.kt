@@ -18,12 +18,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btStart.setOnClickListener {
-            Toast.makeText(this,"点击了",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "点击了", Toast.LENGTH_SHORT).show();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                var workIntent  = Intent().apply {
-                    putExtra(ACTION_START,"value555555");
+                var workIntent = Intent().apply {
+                    putExtra("id", ACTION_START);
+                    putExtra("para", arrayOf("--mode", "gtp", "--gtp-listen", "1234"));
                 }
-                IntentGoService.enqueueWork(this,workIntent);
+                GnugoService.enqueueWork(this, workIntent);
             }
         }
 
