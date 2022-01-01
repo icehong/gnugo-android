@@ -9,6 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Gnugoandroid">
+        <service
+            android:name=".IntentGoService"
+            android:exported="false"
+            android:process=":RemoteProcess"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

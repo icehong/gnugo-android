@@ -17,8 +17,10 @@ android {
         externalNativeBuild {
             cmake {
                 cFlags '-Wno-format-security', '-Wno-constant-conversion'
+                arguments "-DENABLE_SOCKET_SUPPORT=ON"
             }
         }
+
     }
 
     buildTypes {
@@ -33,6 +35,14 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    splits {
+        abi {
+            enable true // enable ABI split feature to create one APK per ABI
+            universalApk false //generate an additional APK that targets all the ABIs
+            reset()
+            include "arm64-v8a"
+        }
     }
     externalNativeBuild {
         cmake {
