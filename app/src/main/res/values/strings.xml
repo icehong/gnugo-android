@@ -2,4 +2,5 @@
     <string name="app_name">gnugo-android</string>
     <string name="start">START</string>
     <string name="stop">STOP</string>
+    <string name="connect">Connect</string>
 </resources>

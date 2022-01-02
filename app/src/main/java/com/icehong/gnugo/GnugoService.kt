@@ -46,11 +46,16 @@ class GnugoService : JobIntentService() {
             ACTION_START-> {
                 var para = intent.getStringArrayExtra("para")
                 if (para != null) {
-                    main(para)
-                };
-                if (para != null) {
-                    Log.d("LOG:", para.joinToString { "," })
-                };
+                    val mRunnable = Runnable {
+                        run {
+                            main(para)
+                            Log.d("GnugoS", "main return.")
+                        }
+                    }
+                    Thread(mRunnable).start()
+                    para.forEach { Log.d("GnugoS", "main start:$it") }
+
+                }
             }
         }
         Log.d("MyJobIntentService所在线程", Thread.currentThread().id.toString());
