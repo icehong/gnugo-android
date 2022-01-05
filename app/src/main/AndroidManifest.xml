@@ -11,12 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Gnugoandroid">
-
+        <service
+            android:name=".Gnugo2Service"
+            android:enabled="true"
+            android:exported="true"></service>
         <service
             android:name=".GnugoService"
             android:exported="false"
-            android:process=":RemoteProcess"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=":RemoteProcess" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

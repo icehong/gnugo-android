@@ -1,5 +1,6 @@
 package com.icehong.gnugo
 
+import android.os.Handler
 import android.util.Log
 import java.io.*
 import java.lang.Thread.sleep
@@ -18,13 +19,12 @@ class GoClient (private val ip: String, private val port: Int){
 
     //已连接标记
     private val isConnect get() = sc != null && din != null && dout != null
-
     private val queue = SynchronousQueue<String>(true)
 
     /**
      * 初始化普通交互连接
      */
-    fun initConnect() {
+    fun initConnect() :Boolean {
         var i = 0 ;
         while (!isConnect && i < 3){
             try {
@@ -34,7 +34,7 @@ class GoClient (private val ip: String, private val port: Int){
                 sc?.soTimeout = 10000  //设置连接超时限制
                 if (isConnect) {
                     Log.d("GoClient", "connect server successful")
-                    return
+                    return true
                 } else {
                     Log.d("GoClient", "connect server failed(${i}), now retry...")
                 }
@@ -44,6 +44,7 @@ class GoClient (private val ip: String, private val port: Int){
             i++
             sleep((1000 * i).toLong())
         }
+        return false
     }
 
 
@@ -84,12 +85,12 @@ class GoClient (private val ip: String, private val port: Int){
         Thread(mRunnable).start()
     }
 
-    fun receiveThread(){
+    fun receiveThread(mHandler: Handler){
         val mRunnable = Runnable {
             run {
+                val inMessage = CharArray(1024)
                 while (isConnect) {
                     try {
-                        val inMessage = CharArray(1024)
                         val a = din?.read(inMessage) //a存储返回消息的长度
                         if (a == null || a <= -1) {	//接受到的消息没有长度，即代表服务端发送了空的消息
                             sleep(1000)
@@ -97,6 +98,7 @@ class GoClient (private val ip: String, private val port: Int){
                             continue
                         }
                         var recvMsg = String(inMessage, 0, a) //用string的构造方法来转换字符数组为字符串
+                        mHandler.obtainMessage(0,recvMsg).sendToTarget();
                         Log.d("GoClient", "receive: $recvMsg")
                     } catch (e: SocketTimeoutException) {
                     } catch (e: IOException) {

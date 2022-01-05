@@ -2,8 +2,11 @@ package com.icehong.gnugo
 
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
 import android.util.Log
 import androidx.core.app.JobIntentService
+import android.widget.Toast
+
 
 // TODO: Rename actions, choose action names that describe tasks that this
 // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
@@ -61,4 +64,20 @@ class GnugoService : JobIntentService() {
         Log.d("MyJobIntentService所在线程", Thread.currentThread().id.toString());
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        toast("All work complete")
+    }
+
+    private val mHandler: Handler = Handler()
+    // Helper for showing tests
+    private fun toast(text: CharSequence?) {
+        mHandler.post(Runnable {
+            Toast.makeText(
+                this@GnugoService,
+                text,
+                Toast.LENGTH_SHORT
+            ).show()
+        })
+    }
 }
