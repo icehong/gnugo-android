@@ -4,5 +4,5 @@ package com.icehong.gnugo;
 // Declare any non-default types here with import statements
 
 interface IGnugoS {
-    String GtpCommand(String cmd);
+    String processGTP(String cmd);
 }

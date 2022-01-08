@@ -18,21 +18,23 @@ class GoClient (private val ip: String, private val port: Int){
     private var din: InputStreamReader? = null
 
     //已连接标记
-    private val isConnect get() = sc != null && din != null && dout != null
+    val bConnected get() = sc != null && din != null && dout != null
     private val queue = SynchronousQueue<String>(true)
+
+    private lateinit var threadsend: Thread
 
     /**
      * 初始化普通交互连接
      */
     fun initConnect() :Boolean {
         var i = 0 ;
-        while (!isConnect && i < 3){
+        while (!bConnected && i < 5){
             try {
                 sc = Socket(ip, port) //通过socket连接服务器
                 din = InputStreamReader(sc?.getInputStream(),"UTF-8")
                 dout = sc?.getOutputStream()    //获取输出流
                 sc?.soTimeout = 10000  //设置连接超时限制
-                if (isConnect) {
+                if (bConnected) {
                     Log.d("GoClient", "connect server successful")
                     return true
                 } else {
@@ -57,7 +59,7 @@ class GoClient (private val ip: String, private val port: Int){
 
     fun sendMessage(message: ByteArray?): Boolean {
         try {
-            if (isConnect) {
+            if (bConnected) {
                 if (message != null) {        //判断输出流或者消息是否为空，为空的话会产生null pointer错误
                     dout?.write(message)
                     dout?.flush()
@@ -75,21 +77,28 @@ class GoClient (private val ip: String, private val port: Int){
     fun sendThread() {
         val mRunnable = Runnable {
             run {
-                while (isConnect) {
-                    val msg = queue.take()
-                    Log.d("GoClient", "got message ${msg}")
-                    sendMessage(msg)
+                while (bConnected) {
+                    try {
+                        val msg = queue.take()
+                        Log.d("GoClient", "sendMessage ${msg}")
+                        sendMessage(msg)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                        break
+                    }
                 }
+
             }
         }
-        Thread(mRunnable).start()
+        threadsend = Thread(mRunnable)
+        threadsend.start()
     }
 
     fun receiveThread(mHandler: Handler){
         val mRunnable = Runnable {
             run {
                 val inMessage = CharArray(1024)
-                while (isConnect) {
+                while (bConnected) {
                     try {
                         val a = din?.read(inMessage) //a存储返回消息的长度
                         if (a == null || a <= -1) {	//接受到的消息没有长度，即代表服务端发送了空的消息
@@ -125,5 +134,10 @@ class GoClient (private val ip: String, private val port: Int){
     } catch (e: IOException) {
         e.printStackTrace()
         false
+    }
+
+    fun close(){
+        if(::threadsend.isInitialized)  threadsend.interrupt()
+        closeConnect()
     }
 }

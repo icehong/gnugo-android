@@ -12,14 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Gnugoandroid">
         <service
-            android:name=".Gnugo2Service"
+            android:name="com.icehong.gnugo.GnugoService"
             android:enabled="true"
-            android:exported="true"></service>
-        <service
-            android:name=".GnugoService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:process=":RemoteProcess" />
+            android:exported="true"
+            android:process="com.icehong.gnugo.srv" >
+            　　<intent-filter>
+            　　　　<action android:name="com.icehong.gnugo.GnugoService"/>
+            　　</intent-filter>
+        </service>
 
         <activity
             android:name=".MainActivity"

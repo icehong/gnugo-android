@@ -6,14 +6,10 @@ import android.content.Intent
 import android.content.ServiceConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import android.widget.Toast
 import com.icehong.gnugo.databinding.ActivityMainBinding
-import android.R
-import android.annotation.SuppressLint
 
-import android.graphics.Bitmap
 import android.os.*
-import androidx.core.os.HandlerCompat
+import java.lang.ref.WeakReference
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,23 +17,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val client = GoClient("127.0.0.1", 1234)
-
     var mService: IGnugoS? = null
 
     val mConnection = object : ServiceConnection {
-
         // Called when the connection with the service is established
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             // Following the example above for an AIDL interface,
             // this gets an instance of the IRemoteInterface, which we can use to call on the service
             mService = IGnugoS.Stub.asInterface(service)
-            binding.txtResult.text.append("onServiceConnected")
+            binding.textRst.append("onServiceConnected\n")
 
         }
-
         // Called when the connection with the service disconnects unexpectedly
         override fun onServiceDisconnected(className: ComponentName) {
-            binding.txtResult.text.append("onServiceDisconnected")
+            binding.textRst.append("onServiceDisconnected\n")
             Log.e("MainActivity", "Service has unexpectedly disconnected")
             mService = null
         }
@@ -51,13 +44,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btStart.setOnClickListener {
-            Intent(this, Gnugo2Service::class.java).also { intent ->
+            Intent(this, GnugoService::class.java).also { intent ->
                 bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
             }
         }
-
         binding.btStop.setOnClickListener {
             client.asynSendMessage("quit\n")
+            try {
+                mService = null
+                unbindService(mConnection)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         binding.btConn.setOnClickListener {
@@ -92,29 +90,31 @@ class MainActivity : AppCompatActivity() {
         binding.bt3.setOnClickListener{
             client.asynSendMessage("3 play black D5\n")
         }
-/*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            var workIntent = Intent().apply {
-                putExtra("id", ACTION_START);
-                putExtra("para", arrayOf("--mode", "gtp", "--gtp-listen", "1234"));
-            }
-            GnugoService.enqueueWork(this, workIntent);
-        }
-
-
- */
 
     }
 
-    // val mHandler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
-    private val mHandler: Handler = object : Handler() {
-        @SuppressLint("HandlerLeak")
-        override fun handleMessage(msg: Message) { //此方法在ui线程运行
+    override fun onDestroy() {
+        client.close()
+        super.onDestroy()
+    }
+
+    fun AppendResult(value: CharSequence?){
+        binding.textRst.append(value)
+    }
+
+    class MyHandler(activity: MainActivity?) : Handler() {
+        var wractivity: WeakReference< MainActivity> = WeakReference<MainActivity>(activity)
+        override fun handleMessage(msg: Message) {
+            val mactivity = wractivity.get() ?: return
+            super.handleMessage(msg)
             when (msg.what) {
                 0 -> {
-                    binding.txtResult.text.append(msg.obj as String)
+                    mactivity.AppendResult(msg.obj as String)
                 }
             }
         }
     }
+
+    // val mHandler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
+    private val mHandler: Handler = MyHandler(this)
 }
